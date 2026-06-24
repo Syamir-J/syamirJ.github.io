@@ -739,6 +739,33 @@ header.scrolled .nav-container {
     font-weight: 400;
 }
 
+/* Timeline Card Image Preview Box */
+.timeline-img-box {
+    width: 100%;
+    height: 140px;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 15px;
+    border: 1px solid var(--border-color);
+    transition: var(--transition-smooth);
+}
+
+.timeline-card:hover .timeline-img-box {
+    border-color: var(--accent-orange-dim);
+}
+
+.timeline-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: var(--transition-smooth);
+}
+
+.timeline-card:hover .timeline-img {
+    transform: scale(1.05);
+}
+
 /* --- Skills & Languages Section --- */
 .skills-grid {
     display: grid;
