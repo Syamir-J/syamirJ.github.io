@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     let distanceX = this.x - mouse.x;
                     let distanceY = this.y - mouse.y;
                     let distance = Math.hypot(distanceX, distanceY);
-                    
+
                     if (distance < mouse.radius) {
                         let force = (mouse.radius - distance) / mouse.radius;
                         let directionX = distanceX / distance;
@@ -210,28 +210,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     /* ==========================================
-       4. Navigation Active Highlights on Scroll
+       4. Dynamic Single Page Routing (SPA)
        ========================================== */
     const sections = document.querySelectorAll('section');
     const navItems = document.querySelectorAll('.nav-item');
 
-    window.addEventListener('scroll', () => {
-        let current = '';
+    function handleRouting() {
+        const hash = window.location.hash || '#hero';
+        const activeSectionId = hash.substring(1);
+
+        // List of main section IDs to route
+        const validSectionIds = ['hero', 'about', 'education', 'skills', 'projects', 'achievements', 'contact'];
+        
+        // Default to hero if hash is invalid/unmatched
+        let targetId = validSectionIds.includes(activeSectionId) ? activeSectionId : 'hero';
+
         sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (window.scrollY >= (sectionTop - 200)) {
-                current = section.getAttribute('id');
+            const id = section.getAttribute('id');
+            // Show the target section. If 'skills' is active, also show 'interests'
+            if (id === targetId || (targetId === 'skills' && id === 'interests')) {
+                section.classList.remove('hidden-route');
+            } else {
+                section.classList.add('hidden-route');
             }
         });
 
+        // Update nav link active state
         navItems.forEach(item => {
-            item.classList.remove('active');
-            if (item.getAttribute('href') === `#${current}`) {
+            const href = item.getAttribute('href');
+            if (href === `#${targetId}`) {
                 item.classList.add('active');
+            } else {
+                item.classList.remove('active');
             }
         });
-    });
+
+        // Reset scroll position to top
+        window.scrollTo({ top: 0 });
+
+        // Trigger section-specific entrance animations immediately
+        if (targetId === 'skills') {
+            animateSkills();
+        } else if (targetId === 'education') {
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            timelineItems.forEach(item => {
+                item.classList.add('visible');
+            });
+        }
+    }
+
+    // Router event listeners
+    window.addEventListener('hashchange', handleRouting);
+    handleRouting(); // Run immediately on load
 
 
     /* ==========================================
@@ -279,41 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Trigger skills animation when section is in viewport
-    const skillsSection = document.getElementById('skills');
-    if (skillsSection) {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    animateSkills();
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.25 });
-
-        observer.observe(skillsSection);
-    }
-
-
-    /* ==========================================
-       7. Timeline Entrance Animations
-       ========================================== */
-    const timelineItems = document.querySelectorAll('.timeline-item');
-    if (timelineItems.length > 0) {
-        const timelineObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    // Once animated, no need to watch again
-                    timelineObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.15 });
-
-        timelineItems.forEach(item => {
-            timelineObserver.observe(item);
-        });
-    }
 
 
     /* ==========================================
@@ -332,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             projectCards.forEach(card => {
                 const category = card.getAttribute('data-category');
-                
+
                 // Add soft transition
                 card.style.opacity = '0';
                 card.style.transform = 'scale(0.95) translateY(10px)';
@@ -429,28 +424,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     Message: message
                 })
             })
-            .then(response => {
-                if (response.ok) {
-                    statusMsg.className = 'form-status success';
-                    statusMsg.textContent = '[✔] Secure connection established. Message encrypted and transmitted successfully!';
-                    contactForm.reset();
-                } else {
-                    throw new Error("Uplink failure response code: " + response.status);
-                }
-            })
-            .catch(error => {
-                console.error("Transmission Error:", error);
-                statusMsg.className = 'form-status error';
-                statusMsg.textContent = '[!] System Error: Connection lost. Transmission failed. Please try again.';
-            })
-            .finally(() => {
-                // Clear status after 8 seconds
-                setTimeout(() => {
-                    statusMsg.style.display = 'none';
-                    statusMsg.className = 'form-status';
-                    statusMsg.textContent = '';
-                }, 8000);
-            });
+                .then(response => {
+                    if (response.ok) {
+                        statusMsg.className = 'form-status success';
+                        statusMsg.textContent = '[✔] Secure connection established. Message encrypted and transmitted successfully!';
+                        contactForm.reset();
+                    } else {
+                        throw new Error("Uplink failure response code: " + response.status);
+                    }
+                })
+                .catch(error => {
+                    console.error("Transmission Error:", error);
+                    statusMsg.className = 'form-status error';
+                    statusMsg.textContent = '[!] System Error: Connection lost. Transmission failed. Please try again.';
+                })
+                .finally(() => {
+                    // Clear status after 8 seconds
+                    setTimeout(() => {
+                        statusMsg.style.display = 'none';
+                        statusMsg.className = 'form-status';
+                        statusMsg.textContent = '';
+                    }, 8000);
+                });
         });
     }
 
@@ -467,7 +462,7 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ==========================================
    12. Copy to Clipboard Utility
    ========================================== */
-window.copyText = function(text, btnElement) {
+window.copyText = function (text, btnElement) {
     navigator.clipboard.writeText(text).then(() => {
         btnElement.classList.add('active');
         setTimeout(() => {

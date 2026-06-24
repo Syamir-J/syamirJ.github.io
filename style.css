@@ -1694,3 +1694,37 @@ footer {
         text-align: center;
     }
 }
+
+/* ==========================================================================
+   13. SPA Router Section Visibility & Animations
+   ========================================================================== */
+
+section {
+    min-height: 80vh;
+}
+
+section.hero {
+    min-height: 100vh;
+}
+
+/* Utility to hide sections when not on the active route */
+section.hidden-route {
+    display: none !important;
+}
+
+/* Smooth fade-in transition when a section becomes active */
+section:not(.hidden-route) {
+    animation: routeFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes routeFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
