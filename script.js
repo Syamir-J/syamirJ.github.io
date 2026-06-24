@@ -410,19 +410,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Simulate sending message
-            statusMsg.classList.add('success');
-            statusMsg.textContent = '[✔] Secure connection established. Message encrypted and transmitted successfully!';
+            // Show transmission progress
+            statusMsg.style.display = 'block';
+            statusMsg.className = 'form-status';
+            statusMsg.textContent = '[...] Initializing uplink. Encrypting and transmitting packet...';
 
-            // Reset inputs
-            contactForm.reset();
-
-            // Clear success after 6 seconds
-            setTimeout(() => {
-                statusMsg.style.display = 'none';
-                statusMsg.className = 'form-status';
-                statusMsg.textContent = '';
-            }, 6000);
+            // Send actual email via FormSubmit AJAX endpoint
+            fetch("https://formsubmit.co/ajax/syamirjunaidi05@gmail.com", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    Name: name,
+                    Email: email,
+                    Subject: subject,
+                    Message: message
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    statusMsg.className = 'form-status success';
+                    statusMsg.textContent = '[✔] Secure connection established. Message encrypted and transmitted successfully!';
+                    contactForm.reset();
+                } else {
+                    throw new Error("Uplink failure response code: " + response.status);
+                }
+            })
+            .catch(error => {
+                console.error("Transmission Error:", error);
+                statusMsg.className = 'form-status error';
+                statusMsg.textContent = '[!] System Error: Connection lost. Transmission failed. Please try again.';
+            })
+            .finally(() => {
+                // Clear status after 8 seconds
+                setTimeout(() => {
+                    statusMsg.style.display = 'none';
+                    statusMsg.className = 'form-status';
+                    statusMsg.textContent = '';
+                }, 8000);
+            });
         });
     }
 
